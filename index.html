@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Демо: строим матрицу, посторенный по графу и сравниваем её с эталонной</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <main class="demo">
+      <div class="demo__item item editor-container">
+        <span class="item__title">JS (sigma)</span>
+        <div class="max-w-h js-editor-js"></div>
+      </div>
+      <div class="demo__item">
+        <div class="vertical-list">
+          <div class="vertical-list__item item">
+            <span class="item__title">Образец</span>
+            <div class="max-w-h js-sample"></div>
+          </div>
+          <div class="vertical-list__item item">
+            <span class="item__title">Результат</span>
+            <div class="max-w-h js-result"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="lib/data/initials.js"></script>
+    <script src="lib/ace/ace.js"></script>
+    <script src="lib/data/graph.js"></script>
+    <script src="lib/sigma/sigma.js"></script>
+    <script>
+      const jsEditor = ace.edit(document.querySelector('.js-editor-js'));
+      jsEditor.session.setMode("ace/mode/javascript"); // Режим редактора — javascript
+      jsEditor.session.setTabSize(2);
+      jsEditor.setValue(window.initialCode.initialJS);
+
+
+      const sampleEl = document.querySelector('.js-sample');
+      const resultEl = document.querySelector('.js-result');
+      
+      const sampleSigma = new sigma({
+        renderer: {
+          container: sampleEl,
+          type: 'canvas'
+        },
+        settings: {
+          edgeLabels: true,
+          sideMargin: 0.5,
+          defaultNodeColor: '#cccccc',
+          enableEdgeHovering: true
+        }
+      });
+      sampleSigma.graph.read(window.initialGraph); // window.initialGraph Доступен после подключения lib/data/initials.js
+      sampleSigma.refresh();
+
+      const compareMatrices = (matrix1, matrix2) => {
+        const flattenedMatrix2 = matrix2.flat();
+        return matrix1.flat().every((val, i) => val === flattenedMatrix2[i])
+      };
+
+      const etalonMatrix = [
+        [0, 1, 1, 1],
+        [1, 0, 0, 1],
+        [1, 0, 0, 1],
+        [1, 1, 1, 0]
+      ];
+
+      let interval = null;
+      function onChange () {
+        clearInterval(interval);
+        interval = setTimeout(() => {
+          eval(jsEditor.getValue());
+          const rightAnswer = compareMatrices(window.finalMatrix, etalonMatrix);
+          resultEl.innerHTML = rightAnswer ? 'Верно!' : 'Неверно :(';
+        }, 1000);
+      }
+      jsEditor.getSession().on('change', onChange);
+      onChange();
+    </script>
+  </body>
+</html>
