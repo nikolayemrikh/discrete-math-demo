@@ -65,18 +65,21 @@
         [1, 0, 0, 1],
         [1, 1, 1, 0]
       ];
+      const makeChanges = () => {
+        eval(jsEditor.getValue());
+        const rightAnswer = compareMatrices(window.finalMatrix, etalonMatrix);
+        resultEl.innerHTML = rightAnswer ? 'Верно!' : 'Неверно :(';
+      };
+      makeChanges();
 
       let interval = null;
-      function onChange () {
+      const onChange = () => {
         clearInterval(interval);
         interval = setTimeout(() => {
-          eval(jsEditor.getValue());
-          const rightAnswer = compareMatrices(window.finalMatrix, etalonMatrix);
-          resultEl.innerHTML = rightAnswer ? 'Верно!' : 'Неверно :(';
+          makeChanges();
         }, 1000);
       }
       jsEditor.getSession().on('change', onChange);
-      onChange();
     </script>
   </body>
 </html>
