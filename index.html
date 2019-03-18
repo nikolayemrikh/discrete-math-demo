@@ -34,6 +34,7 @@
       jsEditor.session.setMode("ace/mode/javascript"); // Режим редактора — javascript
       jsEditor.session.setTabSize(2);
       jsEditor.setValue(window.initialCode.initialJS);
+      jsEditor.clearSelection();
 
 
       const sampleEl = document.querySelector('.js-sample');
