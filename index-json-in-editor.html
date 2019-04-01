@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Демо: строим матрицу, посторенный по графу и сравниваем её с эталонной</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <main class="demo">
+      <div class="demo__item item editor-container">
+        <span class="item__title">JS (sigma)</span>
+        <div class="item__inner js-editor-json"></div>
+      </div>
+      <div class="demo__item">
+        <div class="vertical-list">
+          <div class="vertical-list__item item">
+            <span class="item__title">Образец</span>
+            <div class="item__inner js-sample"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="lib/ace/ace.js"></script>
+    <script src="lib/sigma/sigma.js"></script>
+    <script>
+      const editorValue = {
+        nodes: [{
+          id: 'n0',
+          label: 'x1',
+          x: 0,
+          y: -1,
+          size: 1
+        }, {
+          id: 'n1',
+          label: 'x2',
+          x: 1,
+          y: 0,
+          size: 1
+        }, {
+          id: 'n2',
+          label: 'x3',
+          x: 0,
+          y: 1,
+          size: 1
+        }, {
+          id: 'n3',
+          label: 'x4',
+          x: -1,
+          y: 0,
+          size: 1
+        }],
+        edges: [ {
+          id: 'e0',
+          source: "n0",
+          target: "n1"
+        }, {
+          id: 'e1',
+          source: "n0",
+          target: 'n2'
+        }, {
+          id: 'e2',
+          source: "n0",
+          target: 'n3'
+        }, {
+          id: 'e3',
+          source: "n1",
+          target: 'n3'
+        }, {
+          id: 'e4',
+          source: 'n2',
+          target: 'n3'
+        }]
+      };
+
+      const jsonEditor = ace.edit(document.querySelector('.js-editor-json'));
+      jsonEditor.session.setMode("ace/mode/json");
+      jsonEditor.session.setTabSize(2);
+      jsonEditor.setValue(JSON.stringify(editorValue, null, 2));
+      jsonEditor.clearSelection();
+
+
+      const sampleEl = document.querySelector('.js-sample');
+      const resultEl = document.querySelector('.js-result');
+      
+      
+      const makeChanges = () => {
+        sampleEl.innerHTML = '';
+        const sampleSigma = new sigma({
+          renderer: {
+            container: sampleEl,
+            type: 'canvas'
+          },
+          settings: {
+            edgeLabels: true,
+            sideMargin: 0.5,
+            defaultNodeColor: '#cccccc',
+            enableEdgeHovering: true
+          }
+        });
+        sampleSigma.graph.read(JSON.parse(jsonEditor.getValue()));
+        sampleSigma.refresh();
+      };
+      makeChanges();
+
+      let interval = null;
+      const onChange = () => {
+        clearInterval(interval);
+        interval = setTimeout(() => {
+          makeChanges();
+        }, 1000);
+      }
+      jsonEditor.getSession().on('change', onChange);
+    </script>
+  </body>
+</html>
